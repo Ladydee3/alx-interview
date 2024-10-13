@@ -1,52 +1,36 @@
 #!/usr/bin/python3
 """Implementing the lockbox algorithm"""
-from typing import List, MutableMapping
+from typing import List
 
 
 def canUnlockAll(boxes: List[List[int]]) -> bool:
     """
     Checks if all boxes can be unlocked.
-    The function checks each box (list), and assigns a
-    value of `True` to each key (number) found in it.
-
-    Each key can unlock another box, so if at the end of the iteration
-    a box is not found to be in the dictionary, then the function returns
-    False.
-
+    
     Args:
-      boxes(list) - list of lists
-
+        boxes (list): A list of lists, where each sublist contains the keys found in the corresponding box.
+    
     Returns:
-        if each box (list) in the can be opened, the function
-        returns True, otherwise False.
-
+        bool: True if all boxes can be unlocked, otherwise False.
     """
-    box_dict: MutableMapping[int, int] = {}
-    box_len: int = len(boxes)
-    i: int = 0
+    n = len(boxes)  # Number of boxes
+    unlocked = [False] * n  # Tracking unlocked boxes
+    unlocked[0] = True  # Box 0 is always unlocked initially
+    keys = [0]  # Start with the keys from box 0
 
-    if (len(boxes) == 0 or len(boxes) == 1):
-        return True
+    # Explore boxes as long as we have new keys to use
+    while keys:
+        current_key = keys.pop()
 
-    # set the first box to True; it's already open
-    box_dict[i] = True
+        # Check if the current key unlocks a valid box
+        if not unlocked[current_key]:
+            unlocked[current_key] = True  # Mark the box as unlocked
 
-    while i < box_len:
-        # check if the key to the box is set to True
-        if box_dict.get(i) is True:
-            # set each key in the box to True
-            for key in boxes[i]:
-                box_dict[key] = True
-                if key < box_len and len(boxes[key]) > 0:
-                    for k in boxes[key]:
-                        box_dict[k] = True
+            # Add all keys found in this newly unlocked box
+            for key in boxes[current_key]:
+                if key < n and not unlocked[key]:
+                    keys.append(key)
 
-        i += 1
+    # Return True if all boxes are unlocked
+    return all(unlocked)
 
-    # check for all the available keys of the boxes
-    for num in range(0, box_len):
-        if box_dict.get(num) and box_dict.get(num) is True:
-            continue
-        else:
-            return False
-    return True
